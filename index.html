@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieLens Visualization</title>
+    <script src="index.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body class="bg-stone-900 w-full max-h-screen">
+    <div class="flex container mx-auto my-12 gap-6">
+        <div class="w-96 relative bg-stone-800 p-6 rounded-lg shadow border border-stone-600">
+            <h1 class="text-red-400 text-5xl font-semibold">MovieLens</h1>
+            <h1 class="text-stone-100 text-4xl">Visualization</h1>
+            <div class='border border-stone-700 my-6'></div>
+            <div class="flex flex-col gap-3">
+                <div class="cursor-pointer bg-stone-700 rounded-md p-3">
+                    <span class="font-medium text-red-300">Visualization 1</span>
+                </div>
+                <div class="cursor-pointer hover:bg-stone-700 rounded-md p-3 transition-all">
+                    <span class="font-medium text-stone-400">Visualization 1</span>
+                </div>
+                <div class="cursor-pointer hover:bg-stone-700 rounded-md p-3 transition-all">
+                    <span class="font-medium text-stone-400">Visualization 1</span>
+                </div>
+                <div class="cursor-pointer hover:bg-stone-700 rounded-md p-3 transition-all">
+                    <span class="font-medium text-stone-400">Visualization 1</span>
+                </div>
+            </div>
+        </div>
+        <div class="min-h-full max-h-full w-full bg-stone-800 shadow border border-stone-600 rounded-md">
+            <div id="d3-div"></div>
+        </div>
+    </div>
+</body>
+
+</html>
