@@ -5,7 +5,7 @@ const visualization = [
   },
   {
     id: "vis2",
-    render: renderVisualization1,
+    render: renderVisualization2,
   },
   {
     id: "vis3",
@@ -36,6 +36,6 @@ function setActiveVisualization(index) {
   activeVisualization.render();
 }
 
-window.addEventListener("load", () => {
+document.addEventListener("dataset-ready", function (e) {
   activeVisualization.render();
 });

@@ -1,16 +1,17 @@
 function renderVisualization1(genre = "Action") {
-  const { clientWidth: width, clientHeight: height } = document.getElementById("d3");
-  const margin = { top: 30, right: 30, bottom: 30, left: 60 };
+  let width = 600;
+  let height = 300;
+  const margin = { top: 50, bottom: 20, left: 50, right: 25 };
   const select = document.createElement("select");
   const title = document.createElement("h1");
-  let data = getRatingsPerGenre(genre);
+  let data = getRatingsNumberPerGenre(genre);
 
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
   title.innerText = "Ratings Per Genre";
   select.classList.add("absolute", "right-4", "top-4");
 
   select.onchange = (e) => {
-    data = getRatingsPerGenre(select.value);
+    data = getRatingsNumberPerGenre(select.value);
     update(data);
   };
 
@@ -28,22 +29,24 @@ function renderVisualization1(genre = "Action") {
   const svg = d3
     .select("#d3")
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("viewBox", `0 0 ${width} ${height}`)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  width = 600 - margin.left - margin.right;
+  height = 300 - margin.top - margin.bottom;
 
   const x = d3.scaleBand().range([0, width]).domain([1, 2, 3, 4, 5]).padding(0.2);
 
   svg
     .append("g")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x))
     .selectAll("text")
     .attr("transform", "translate(-10,0)rotate(-45)")
     .style("text-anchor", "end");
 
-  const y = d3.scaleLinear().domain([0, 200]).range([height, 0]);
+  const y = d3.scaleLinear().domain([0, 8500]).range([height, 0]);
 
   svg.append("g").call(d3.axisLeft(y));
 
@@ -65,14 +68,12 @@ function renderVisualization1(genre = "Action") {
   update(data);
 }
 
-function getRatingsPerGenre(genre) {
-  const genreMovies = movies.filter((m) => m[genre] === "1");
+function getRatingsNumberPerGenre(genre) {
   const data = [0, 0, 0, 0, 0];
 
-  for (const movie of genreMovies) {
-    const rating = ratings.find((m) => m.item_id === movie.id)?.rating;
-    if (rating) {
-      data[rating - 1] += 1;
+  for (const entry of dataset) {
+    if (entry.genres.includes(genre)) {
+      data[entry.rating - 1] += 1;
     }
   }
 
