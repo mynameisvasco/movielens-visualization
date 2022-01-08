@@ -6,7 +6,7 @@ function renderVisualization2() {
   const data = getRatingsAveragePerGenreAndOccupation();
 
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-8");
-  title.innerText = "Ratings Per Occupation";
+  title.innerText = "Occupations Average Rating";
 
   document.getElementById("d3").append(title);
 
@@ -20,7 +20,7 @@ function renderVisualization2() {
   width = 600 - margin.left - margin.right;
   height = 300 - margin.top - margin.bottom;
 
-  var x = d3
+  const x = d3
     .scaleBand()
     .range([0, width])
     .domain(occupations.map((o) => o.name))
@@ -34,7 +34,7 @@ function renderVisualization2() {
     .select(".domain")
     .remove();
 
-  var y = d3
+  const y = d3
     .scaleBand()
     .range([height, 0])
     .domain(genres.map((g) => g.name))
@@ -42,7 +42,40 @@ function renderVisualization2() {
 
   svg.append("g").style("font-size", 4).call(d3.axisLeft(y).tickSize(0)).select(".domain").remove();
 
-  const color = d3.scaleSequential().interpolator(d3.interpolateInferno).domain([2.5, 4]);
+  const color = d3.scaleSequential().interpolator(d3.interpolateGnBu).domain([2.5, 4]);
+
+  const tooltip = d3
+    .select("#d3")
+    .append("div")
+    .style("opacity", 1)
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "5px");
+
+  const mouseover = function (d) {
+    tooltip.style("opacity", 1);
+    d3.select(this).style("stroke", "black").style("stroke-width", "1px").style("opacity", 1);
+  };
+
+  const mousemove = function (event, d) {
+    tooltip
+      .html(
+        `Occupation: ${d[0].split("$")[0]} <br> Genre: ${d[0].split("$")[1]} <br> Average Rating: ${
+          Math.round(d[1] * 100) / 100
+        }`
+      )
+      .style("left", event.x / 2 + "px")
+      .style("top", event.y / 2 + "px");
+  };
+
+  const mouseleave = function (d) {
+    tooltip.style("opacity", 0);
+    d3.select(this).style("stroke", "none").style("opacity", 0.8);
+  };
 
   svg
     .selectAll()
@@ -58,7 +91,10 @@ function renderVisualization2() {
     .style("fill", (d) => color(d[1]))
     .style("stroke-width", 4)
     .style("stroke", "none")
-    .style("opacity", 0.8);
+    .style("opacity", 0.8)
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave);
 }
 
 function getRatingsAveragePerGenreAndOccupation() {

@@ -9,7 +9,7 @@ const visualization = [
   },
   {
     id: "vis3",
-    render: renderVisualization1,
+    render: renderVisualization3,
   },
   {
     id: "vis4",
