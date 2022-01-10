@@ -76,22 +76,62 @@ function renderVisualization1(genre = "Action") {
     .text("Total Ratings");
 
   const xSubgroup = d3.scaleBand().domain(subgroups).range([0, x.bandwidth()]).padding([0.05]);
-  const color = d3.scaleOrdinal().domain(subgroups).range(["#e41a1c", "#377eb8", "#4daf4a"]);
+  const color = d3
+    .scaleOrdinal()
+    .domain(subgroups)
+    .range(["rgb(99, 102, 241)", "rgb(244 114 182)"]);
+
+  const tooltip = d3
+    .select("#d3")
+    .append("div")
+    .style("opacity", 1)
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "5px");
+
+  const mouseover = function (d) {
+    tooltip.style("opacity", 1);
+    d3.select(this).style("stroke", "black").style("stroke-width", "1px").style("opacity", 1);
+  };
+
+  const mousemove = function (event, d) {
+    tooltip
+      .html(`Sex: ${d.key} <br> Number of Ratings: ${d.value}`)
+      .style("left", event.x / 2 + "px")
+      .style("top", event.y / 2 + "px");
+  };
+
+  const mouseleave = function (d) {
+    tooltip.style("opacity", 0);
+    d3.select(this).style("stroke", "none").style("opacity", 0.8);
+  };
+
+  const g = svg.append("g");
 
   function update(data) {
-    svg
-      .append("g")
-      .selectAll("g")
-      .data(data)
-      .join("g")
-      .attr("transform", (d, i) => `translate(${x(i + 1)}, 0)`)
-      .selectAll("rect")
-      .data(function (d) {
-        return subgroups.map(function (key) {
-          return { key: key, value: d[key] };
-        });
-      })
-      .join("rect")
+    let bars = g.selectAll("g").data(data);
+    const enter = bars.enter().append("g");
+    bars = enter.merge(bars).attr("transform", (d, i) => `translate(${x(i + 1)}, 0)`);
+
+    const rect = bars.selectAll("rect").data(function (d) {
+      return subgroups.map(function (key) {
+        return { key: key, value: d[key] };
+      });
+    });
+
+    rect
+      .enter()
+      .append("rect")
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave)
+      .merge(rect)
+      .transition()
+      .duration(1000)
       .attr("x", (d) => xSubgroup(d.key))
       .attr("y", (d) => y(d.value))
       .attr("width", xSubgroup.bandwidth())
