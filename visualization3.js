@@ -2,17 +2,27 @@ function renderVisualization3(genre = "Action") {
   let width = 600;
   let height = 600;
   const margin = { top: 50, bottom: 20, left: 50, right: 25 };
+  const filters = document.createElement("div");
   const select = document.createElement("select");
+  const toggle = document.createElement("button");
   const title = document.createElement("h1");
   let data = getMoviesAverageRatingPerGenre(genre, [0, 10]);
 
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
   title.innerText = "Movies Average Rating";
-  select.classList.add("absolute", "right-4", "top-4");
+  filters.classList.add("absolute", "flex", "right-4", "top-4");
+  toggle.classList.add("bg-gray-200", "rounded-md", "px-2");
+  select.classList.add("mr-4");
+  toggle.innerText = "Descending";
+
+  toggle.onclick = (e) => {
+    toggle.innerText = toggle.innerText === "Descending" ? "Ascending" : "Descending";
+    data = getMoviesAverageRatingPerGenre(select.value, [0, 10], toggle.innerText === "Ascending");
+    update(data);
+  };
 
   select.onchange = (e) => {
     data = getMoviesAverageRatingPerGenre(select.value, [0, 10]);
-    console.log(data);
     update(data);
   };
 
@@ -24,8 +34,11 @@ function renderVisualization3(genre = "Action") {
     option.innerHTML = genre.name;
     select.add(option);
   }
+
+  filters.append(select);
+  filters.append(toggle);
   document.getElementById("d3").append(title);
-  document.getElementById("d3").append(select);
+  document.getElementById("d3").append(filters);
 
   const svg = d3
     .select("#d3")
@@ -118,7 +131,7 @@ function renderVisualization3(genre = "Action") {
   update(data);
 }
 
-function getMoviesAverageRatingPerGenre(genre, filter) {
+function getMoviesAverageRatingPerGenre(genre, filter, ascending = false) {
   const data = {};
   const average = (arr) => arr.reduce((p, c) => p + c, 0) / arr.length;
 
@@ -134,6 +147,6 @@ function getMoviesAverageRatingPerGenre(genre, filter) {
   }
 
   return Object.entries(data)
-    .sort((a, b) => b[1] - a[1])
+    .sort((a, b) => (ascending ? a[1] - b[1] : b[1] - a[1]))
     .slice(filter[0], filter[1]);
 }
