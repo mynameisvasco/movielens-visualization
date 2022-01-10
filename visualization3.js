@@ -47,6 +47,14 @@ function renderVisualization3(genre = "Action") {
     .attr("transform", "translate(-10,0)rotate(-45)")
     .style("text-anchor", "end");
 
+  svg
+    .append("text")
+    .style("font-size", 8)
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height + 25)
+    .text("Rating");
+
   const y = d3
     .scaleBand()
     .range([0, height])
