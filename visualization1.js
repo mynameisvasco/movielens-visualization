@@ -189,8 +189,8 @@ function getRatingsNumberPerGenre(genre, occupation) {
     }
   }
 
-  const totalMaleRatings = data.reduce((acc, d) => +d.male + acc, 0);
-  const totalFemaleRatings = data.reduce((acc, d) => +d.female + acc, 0);
+  const totalMaleRatings = data.reduce((acc, d) => +d.male + acc, 1);
+  const totalFemaleRatings = data.reduce((acc, d) => +d.female + acc, 1);
 
   for (const entry of data) {
     entry.male = (entry.male / totalMaleRatings) * 100;
