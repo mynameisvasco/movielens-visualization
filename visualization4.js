@@ -11,7 +11,7 @@ function renderVisualization4() {
     title.innerText = "Genres Relations";
     select.classList.add("absolute", "right-4", "top-4");
 
-
+    var colors = [ "#440154ff", "#31668dff", "#37b578ff", "#fde725ff", "D2D6EF", "AF929D", "A0E7E5", "B4F8C8", "FBE7C6", "FFAEBC", "A49393", "67595E", "81B622", "ECF87F", "DBA40E", "787D12", "21B6A8", "A3EBB1"]
 
     // create the svg area
     var svg = d3.select("#d3")
@@ -94,7 +94,7 @@ function renderVisualization4() {
     .attr("d", d3.ribbon()
         .radius(200)
     )
-    .style("fill", "#ff11f0")
+    .style("fill", function(d){ return(colors[d.source.index]) }) // colors depend on the source group. Change to target otherwise.
     .style("stroke", "black");
 }
 
