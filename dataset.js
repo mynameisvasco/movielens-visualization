@@ -5,6 +5,14 @@ let occupations = [];
 let dataset = [];
 let ratingsPerGenre = {};
 
+async function fetchGenres() {
+  const genresCsv = await (await fetch(`${baseUrl}/dataset/u.genre`)).text();
+  let genres = Papa.parse(genresCsv, { header: true }).data.filter(
+    (g) => g.name !== "unknown" || g.name === ""
+  );
+  return genres
+}
+
 async function fetchDataset() {
   const moviesCsv = await (await fetch(`${baseUrl}/dataset/u.item`)).text();
   const ratingsCsv = await (await fetch(`${baseUrl}/dataset/u.data`)).text();
