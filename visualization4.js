@@ -1,125 +1,113 @@
-
 function renderVisualization4() {
-    let width = 600;
-    let height = 600;
-    const margin = { top: 50, bottom: 20, left: 50, right: 25 };
-    const select = document.createElement("select");
-    const title = document.createElement("h1");
-    let data = []
+  let width = 1000;
+  let height = 1000;
+  const title = document.createElement("h1");
 
-    title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
-    title.innerText = "Genres Relations";
-    select.classList.add("absolute", "right-4", "top-4");
+  title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
+  title.innerText = "Genres Relations";
 
-    var colors = [ "#440154ff", "#31668dff", "#37b578ff", "#fde725ff", "D2D6EF", "AF929D", "A0E7E5", "B4F8C8", "FBE7C6", "FFAEBC", "A49393", "67595E", "81B622", "ECF87F", "DBA40E", "787D12", "21B6A8", "A3EBB1"]
+  document.getElementById("d3").append(title);
 
-    // create the svg area
-    var svg = d3.select("#d3")
+  const colors = [
+    "#440154ff",
+    "#31668dff",
+    "#37b578ff",
+    "#fde725ff",
+    "#D2D6EF",
+    "#AF929D",
+    "#A0E7E5",
+    "#B4F8C8",
+    "#FBE7C6",
+    "#FFAEBC",
+    "#A49393",
+    "#67595E",
+    "#81B622",
+    "#ECF87F",
+    "#DBA40E",
+    "#787D12",
+    "#21B6A8",
+    "#A3EBB1",
+  ];
+
+  // create the svg area
+  var svg = d3
+    .select("#d3")
     .append("svg")
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(220,220)")
+    .attr("transform", "translate(250,250)");
 
-    // create input data: a square matrix that provides flow between entities
-    var matrix = getGenreCorrelations()
+  // create input data: a square matrix that provides flow between entities
+  const matrix = getGenreCorrelations();
 
-    // give this matrix to d3.chord(): it will calculates all the info we need to draw arc and ribbon
-    var chord = d3.chord()
-    .padAngle(0.05)     // padding between entities (black arc)
-    .sortSubgroups(d3.descending)
-    (matrix)
-
-
-    const tooltip = d3
-    .select("#d3")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("position", "absolute")
-    .style("border", "solid")
-    .style("border-width", "1px")
-    .style("border-radius", "5px")
-    .style("padding", "10px");
+  // give this matrix to d3.chord(): it will calculates all the info we need to draw arc and ribbon
+  const chord = d3
+    .chord()
+    .padAngle(0.05) // padding between entities (black arc)
+    .sortSubgroups(d3.descending)(matrix);
 
   const mouseover = function (event, d) {
-    tooltip
-      .html(`Genre: ${genres[event.target.__data__.index].name}`)
-      .style("opacity", 1);
-    d3.select(this).style("stroke", "black").style("stroke-width", "1px");
-    d3.select(this).style("opacity", 1);
-  };
-
-  const mousemove = function (event, d) {
-    tooltip
-      .style("transform", "translateY(-55%)")
-      .style("left", event.x / 2 + "px")
-      .style("top", event.y / 2 - 30 + "px");
+    if (d.index !== undefined) {
+      d3.selectAll(".d-path").style("opacity", 0);
+      d3.selectAll(`.d-path-${d.index}`).style("opacity", "1");
+    }
   };
 
   const mouseleave = function (event, d) {
-    tooltip.style("opacity", 0);
-    d3.select(this).style("stroke", "none");
+    d3.selectAll(`.d-path`).style("opacity", "1");
   };
-  
 
-    // add the groups on the inner part of the circle
-    svg
+  svg
     .datum(chord)
     .append("g")
-    .on("mouseover", mouseover)
-    .on("mousemove", mousemove)
-    .on("mouseleave", mouseleave)
     .selectAll("g")
-    .data(function(d) { return d.groups; })
+    .data((d) => d.groups)
     .enter()
     .append("g")
     .append("path")
-    .style("fill", "grey")
+    .on("mouseover", mouseover)
+    .on("mouseleave", mouseleave)
+    .style("fill", (d, i) => colors[i])
     .style("stroke", "black")
-    .attr("d", d3.arc()
-        .innerRadius(200)
-        .outerRadius(210)
-    )
+    .attr("class", (d, i) => `d d-${i}`)
+    .attr("d", d3.arc().innerRadius(200).outerRadius(210));
 
-    // Add the links between groups
-    svg
+  svg
     .datum(chord)
     .append("g")
     .selectAll("path")
-    .data(function(d) { return d; })
+    .data((d) => d)
     .enter()
     .append("path")
-    .attr("d", d3.ribbon()
-        .radius(200)
-    )
-    .style("fill", function(d){ return(colors[d.source.index]) }) // colors depend on the source group. Change to target otherwise.
+    .attr("d", d3.ribbon().radius(200))
+    .style("fill", (d) => colors[d.source.index])
+    .attr("class", (d) => `d-path d-path-${d.source.index}`)
     .style("stroke", "black");
 }
 
 function getGenreCorrelations() {
-    let data = [];
-    const all_genres = {}
-    
-    for (let i=0;i<genres.length;i++) {
-        all_genres[genres[i].name] = i
-        let lst = []
-        for (let i=0;i<genres.length;i++) {
-            lst.push(0)
-        }
-        data.push(lst)
-    }
+  let data = [];
+  const all_genres = {};
 
-    for (const entry of dataset) {
-        let movie_genres = entry.genres
-        for (genre1 of movie_genres) {
-            for (genre2 of movie_genres) {
-                data[all_genres[genre1]][all_genres[genre2]] += 1
-                data[all_genres[genre2]][all_genres[genre1]] += 1
-            }
-        }
+  for (let i = 0; i < genres.length; i++) {
+    all_genres[genres[i].name] = i;
+    let lst = [];
+    for (let i = 0; i < genres.length; i++) {
+      lst.push(0);
     }
-    
-    return data;
+    data.push(lst);
   }
+
+  for (const entry of dataset) {
+    let movie_genres = entry.genres;
+    for (genre1 of movie_genres) {
+      for (genre2 of movie_genres) {
+        data[all_genres[genre1]][all_genres[genre2]] += 1;
+        data[all_genres[genre2]][all_genres[genre1]] += 1;
+      }
+    }
+  }
+
+  return data;
+}

@@ -3,27 +3,41 @@ function renderVisualization1(genre = "Action") {
   let height = 300;
   const margin = { top: 50, bottom: 20, left: 50, right: 25 };
   const select = document.createElement("select");
+  const filters = document.createElement("div");
+  const occupationSelect = document.createElement("select");
   const title = document.createElement("h1");
   const totalRatingsText = document.createElement("p");
-  let data = getRatingsNumberPerGenre(genre);
-
-  let totalRatings = Object.entries(data).reduce((acc, e) => +acc + +e[1].female + e[1].male, 0);
+  let { data, totalRatings, totalGenreRatings } = getRatingsNumberPerGenre(genre, "all");
 
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
   title.innerText = "Ratings Per Genre";
   totalRatingsText.classList.add("text-gray-600", "text-xl", "px-8", "pt-2");
-  totalRatingsText.innerHTML = `${totalRatings} total ratings<br> ${
-    Math.round((totalRatings / dataset.length) * 10000) / 100
+  totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
+    Math.round((totalGenreRatings / totalRatings) * 10000) / 100
   }% of the dataset`;
-  select.classList.add("absolute", "right-4", "top-4");
+  select.classList.add("mr-4");
+  occupationSelect.classList.add("px-2");
+  filters.classList.add("absolute", "flex", "right-4", "top-4");
 
   select.onchange = (e) => {
-    data = getRatingsNumberPerGenre(select.value);
+    ({ data, totalRatings, totalGenreRatings } = getRatingsNumberPerGenre(
+      select.value,
+      occupationSelect.value
+    ));
     update(data);
-    totalRatings = Object.entries(data).reduce((acc, e) => +acc + +e[1].female + e[1].male, 0);
+    totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
+    }% of the dataset`;
+  };
 
-    totalRatingsText.innerHTML = `${totalRatings} total ratings<br> ${
-      Math.round((totalRatings / dataset.length) * 10000) / 100
+  occupationSelect.onchange = (e) => {
+    ({ data, totalRatings, totalGenreRatings } = getRatingsNumberPerGenre(
+      select.value,
+      occupationSelect.value
+    ));
+    update(data);
+    totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
     }% of the dataset`;
   };
 
@@ -36,8 +50,19 @@ function renderVisualization1(genre = "Action") {
     select.add(option);
   }
 
+  for (const occupation of [...occupations, { name: "all" }]) {
+    const option = document.createElement("option");
+    option.value = occupation.name;
+    option.defaultSelected = occupation.name === "all";
+    option.innerHTML = occupation.name;
+    occupationSelect.add(option);
+  }
+
+  filters.append(select);
+  filters.append(occupationSelect);
+
   document.getElementById("d3").append(title);
-  document.getElementById("d3").append(select);
+  document.getElementById("d3").append(filters);
   document.getElementById("d3").append(totalRatingsText);
 
   const svg = d3
@@ -64,7 +89,7 @@ function renderVisualization1(genre = "Action") {
     .attr("y", height + 15)
     .text("Rating");
 
-  const y = d3.scaleLinear().domain([0, 8000]).range([height, 0]);
+  const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
   svg.append("g").call(d3.axisLeft(y));
 
   svg
@@ -73,7 +98,7 @@ function renderVisualization1(genre = "Action") {
     .attr("text-anchor", "end")
     .attr("y", -10)
     .attr("x", margin.left)
-    .text("Total Ratings");
+    .text("Percentage of Ratings (%)");
 
   const xSubgroup = d3.scaleBand().domain(subgroups).range([0, x.bandwidth()]).padding([0.05]);
   const color = d3
@@ -100,7 +125,7 @@ function renderVisualization1(genre = "Action") {
 
   const mousemove = function (event, d) {
     tooltip
-      .html(`Sex: ${d.key} <br> Number of Ratings: ${d.value}`)
+      .html(`Sex: ${d.key} <br> ${Math.round(d.value * 100) / 100}% of the ratings`)
       .style("left", event.x / 2 + "px")
       .style("top", event.y / 2 + "px");
   };
@@ -142,22 +167,35 @@ function renderVisualization1(genre = "Action") {
   update(data);
 }
 
-function getRatingsNumberPerGenre(genre) {
+function getRatingsNumberPerGenre(genre, occupation) {
   let data = [];
+  let totalRatings = dataset.length;
+  let totalGenreRatings = 0;
 
   for (let i = 0; i < 5; i++) {
     data.push({ female: 0, male: 0 });
   }
 
   for (const entry of dataset) {
+    if (entry.user.occupation !== occupation && occupation !== "all") continue;
+
     if (entry.genres.includes(genre)) {
       if (entry.user.sex === "M") {
         data[entry.rating - 1].male += 1;
       } else if (entry.user.sex === "F") {
         data[entry.rating - 1].female += 1;
       }
+      totalGenreRatings++;
     }
   }
 
-  return data;
+  const totalMaleRatings = data.reduce((acc, d) => +d.male + acc, 0);
+  const totalFemaleRatings = data.reduce((acc, d) => +d.female + acc, 0);
+
+  for (const entry of data) {
+    entry.male = (entry.male / totalMaleRatings) * 100;
+    entry.female = (entry.female / totalFemaleRatings) * 100;
+  }
+
+  return { data, totalRatings, totalGenreRatings };
 }
