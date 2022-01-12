@@ -132,6 +132,8 @@ function renderVisualization3(genre = "Action") {
   };
 
   function update(data) {
+    console.log(data);
+
     var u = svg.selectAll("rect").data(data);
 
     y.domain(data.map((d) => d[0].split("(")[0].slice(0, 15)));
