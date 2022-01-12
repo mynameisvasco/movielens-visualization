@@ -4,11 +4,34 @@ function renderVisualization2() {
   const margin = { top: 50, bottom: 20, left: 50, right: 25 };
   const title = document.createElement("h1");
   const data = getRatingsAveragePerGenreAndOccupation();
+  const label = document.createElement("div");
+  const labelBg = document.createElement("div");
+  const labelMin = document.createElement("h1");
+  const labelMax = document.createElement("h1");
 
+  labelMin.innerText = "2.5";
+  labelMax.innerText = "5.0";
+  label.classList.add("flex", "ml-8", "mt-4", "items-center");
+  labelBg.classList.add(
+    "mx-2",
+    "w-24",
+    "h-8",
+    "rounded-md",
+    "border",
+    "border-gray-800",
+    "bg-gradient-to-r",
+    "from-[#f7fcf0]",
+    "via-[#91d4bd]",
+    "to-[#08488a]"
+  );
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-8");
   title.innerText = "Occupations Average Rating";
 
+  label.append(labelMin);
+  label.append(labelBg);
+  label.append(labelMax);
   document.getElementById("d3").append(title);
+  document.getElementById("d3").append(label);
 
   const svg = d3
     .select("#d3")

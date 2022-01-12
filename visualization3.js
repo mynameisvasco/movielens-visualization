@@ -5,9 +5,15 @@ function renderVisualization3(genre = "Action") {
   const filters = document.createElement("div");
   const select = document.createElement("select");
   const toggle = document.createElement("button");
+  const input = document.createElement("input");
   const title = document.createElement("h1");
   let data = getMoviesAverageRatingPerGenre(genre, [0, 10]);
 
+  input.type = "number";
+  input.min = 10;
+  input.value = 10;
+  input.max = 30;
+  input.classList.add("bg-gray-100", "border", "border-purple-600", "ml-3", "rounded-md", "w-32");
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
   title.innerText = "Movies Average Rating";
   filters.classList.add("absolute", "flex", "right-4", "top-4");
@@ -17,12 +23,29 @@ function renderVisualization3(genre = "Action") {
 
   toggle.onclick = (e) => {
     toggle.innerText = toggle.innerText === "Descending" ? "Ascending" : "Descending";
-    data = getMoviesAverageRatingPerGenre(select.value, [0, 10], toggle.innerText === "Ascending");
+    data = getMoviesAverageRatingPerGenre(
+      select.value,
+      [0, input.value],
+      toggle.innerText === "Ascending"
+    );
     update(data);
   };
 
   select.onchange = (e) => {
-    data = getMoviesAverageRatingPerGenre(select.value, [0, 10], toggle.innerText === "Ascending");
+    data = getMoviesAverageRatingPerGenre(
+      select.value,
+      [0, input.value],
+      toggle.innerText === "Ascending"
+    );
+    update(data);
+  };
+
+  input.onchange = (e) => {
+    data = getMoviesAverageRatingPerGenre(
+      select.value,
+      [0, input.value],
+      toggle.innerText === "Ascending"
+    );
     update(data);
   };
 
@@ -37,6 +60,7 @@ function renderVisualization3(genre = "Action") {
 
   filters.append(select);
   filters.append(toggle);
+  filters.append(input);
   document.getElementById("d3").append(title);
   document.getElementById("d3").append(filters);
 
