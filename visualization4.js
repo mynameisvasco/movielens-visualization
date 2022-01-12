@@ -36,7 +36,7 @@ function renderVisualization4() {
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(250,250)");
+    .attr("transform", "translate(500,350)");
 
   // create input data: a square matrix that provides flow between entities
   const matrix = getGenreCorrelations();
@@ -58,20 +58,40 @@ function renderVisualization4() {
     d3.selectAll(`.d-path`).style("opacity", "1");
   };
 
-  svg
+  const arc = d3.arc().innerRadius(250).outerRadius(260);
+
+  const g = svg
     .datum(chord)
     .append("g")
     .selectAll("g")
     .data((d) => d.groups)
     .enter()
-    .append("g")
-    .append("path")
+    .append("g");
+
+  g.append("path")
     .on("mouseover", mouseover)
     .on("mouseleave", mouseleave)
     .style("fill", (d, i) => colors[i])
     .style("stroke", "black")
     .attr("class", (d, i) => `d d-${i}`)
-    .attr("d", d3.arc().innerRadius(200).outerRadius(210));
+    .attr("d", arc);
+
+  g.append("text")
+    .attr("transform", function (d) {
+      return `translate(${d3
+        .arc()
+        .innerRadius(300)
+        .outerRadius(300)
+        .startAngle(d.startAngle)
+        .endAngle(d.endAngle)
+        .centroid()})`;
+    })
+
+    .style("font-size", 10)
+    .style("text-anchor", "middle")
+    .text(function (d) {
+      return genres[d.index].name;
+    });
 
   svg
     .datum(chord)
@@ -80,7 +100,7 @@ function renderVisualization4() {
     .data((d) => d)
     .enter()
     .append("path")
-    .attr("d", d3.ribbon().radius(200))
+    .attr("d", d3.ribbon().radius(250))
     .style("fill", (d) => colors[d.source.index])
     .attr("class", (d) => `d-path d-path-${d.source.index}`)
     .style("stroke", "black");

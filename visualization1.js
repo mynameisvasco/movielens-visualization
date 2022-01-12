@@ -26,7 +26,7 @@ function renderVisualization1(genre = "Action") {
     ));
     update(data);
     totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
-      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 10000
     }% of the dataset`;
   };
 
@@ -37,7 +37,7 @@ function renderVisualization1(genre = "Action") {
     ));
     update(data);
     totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
-      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 10000
     }% of the dataset`;
   };
 
@@ -120,19 +120,23 @@ function renderVisualization1(genre = "Action") {
 
   const mouseover = function (d) {
     tooltip.style("opacity", 1);
-    d3.select(this).style("stroke", "black").style("stroke-width", "1px").style("opacity", 1);
+    d3.select(this).style("stroke", "black").style("stroke-width", "1px").style("opacity", 0.8);
   };
 
   const mousemove = function (event, d) {
     tooltip
-      .html(`Sex: ${d.key} <br> ${Math.round(d.value * 100) / 100}% of the ratings`)
+      .html(
+        `Sex: ${d.key} <br> ${
+          Math.round((d.value / totalGenreRatings) * 10000) / 100
+        }% of the ratings <br> Absolute Value: ${d.value}`
+      )
       .style("left", event.x / 2 + "px")
       .style("top", event.y / 2 + "px");
   };
 
   const mouseleave = function (d) {
     tooltip.style("opacity", 0);
-    d3.select(this).style("stroke", "none").style("opacity", 0.8);
+    d3.select(this).style("stroke", "none").style("opacity", 1);
   };
 
   const g = svg.append("g");
@@ -158,9 +162,9 @@ function renderVisualization1(genre = "Action") {
       .transition()
       .duration(1000)
       .attr("x", (d) => xSubgroup(d.key))
-      .attr("y", (d) => y(d.value))
+      .attr("y", (d) => y((d.value / totalGenreRatings) * 100))
       .attr("width", xSubgroup.bandwidth())
-      .attr("height", (d) => height - y(d.value))
+      .attr("height", (d) => height - y((d.value / totalGenreRatings) * 100))
       .attr("fill", (d) => color(d.key));
   }
 
@@ -169,7 +173,7 @@ function renderVisualization1(genre = "Action") {
 
 function getRatingsNumberPerGenre(genre, occupation) {
   let data = [];
-  let totalRatings = dataset.length;
+  let totalRatings = 0;
   let totalGenreRatings = 0;
 
   for (let i = 0; i < 5; i++) {
@@ -185,16 +189,10 @@ function getRatingsNumberPerGenre(genre, occupation) {
       } else if (entry.user.sex === "F") {
         data[entry.rating - 1].female += 1;
       }
+
       totalGenreRatings++;
     }
-  }
-
-  const totalMaleRatings = data.reduce((acc, d) => +d.male + acc, 1);
-  const totalFemaleRatings = data.reduce((acc, d) => +d.female + acc, 1);
-
-  for (const entry of data) {
-    entry.male = (entry.male / totalMaleRatings) * 100;
-    entry.female = (entry.female / totalFemaleRatings) * 100;
+    totalRatings += entry.genres.length;
   }
 
   return { data, totalRatings, totalGenreRatings };
