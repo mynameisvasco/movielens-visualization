@@ -1,14 +1,27 @@
 function renderVisualization1(genre = "Action") {
-  let width = 600;
-  let height = 300;
-  const margin = { top: 50, bottom: 20, left: 50, right: 25 };
+  let width = 625;
+  let height = 500;
+  const margin = { top: 25, bottom: 20, left: 50, right: 25 };
   const select = document.createElement("select");
   const filters = document.createElement("div");
   const occupationSelect = document.createElement("select");
   const title = document.createElement("h1");
   const totalRatingsText = document.createElement("p");
+  const maleLabel = document.createElement("div");
+  const maleText = document.createElement("h1");
+  const maleBg = document.createElement("div");
+  const femaleLabel = document.createElement("div");
+  const femaleText = document.createElement("h1");
+  const femaleBg = document.createElement("div");
+
   let { data, totalRatings, totalGenreRatings } = getRatingsNumberPerGenre(genre, "all");
 
+  femaleText.innerText = "Female";
+  maleText.innerText = "Male";
+  maleLabel.classList.add("flex", "items-center", "ml-8", "mt-4");
+  maleBg.classList.add("mr-2", "w-5", "h-5", "bg-purple-600");
+  femaleLabel.classList.add("flex", "items-center", "ml-8", "mt-4");
+  femaleBg.classList.add("mr-2", "w-5", "h-5", "bg-pink-400");
   title.classList.add("text-gray-900", "text-3xl", "px-8", "pt-4");
   title.innerText = "Ratings Per Genre";
   totalRatingsText.classList.add("text-gray-600", "text-xl", "px-8", "pt-2");
@@ -26,7 +39,7 @@ function renderVisualization1(genre = "Action") {
     ));
     update(data);
     totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
-      Math.round((totalGenreRatings / totalRatings) * 10000) / 10000
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
     }% of the dataset`;
   };
 
@@ -37,7 +50,7 @@ function renderVisualization1(genre = "Action") {
     ));
     update(data);
     totalRatingsText.innerHTML = `${totalGenreRatings} total ratings<br> ${
-      Math.round((totalGenreRatings / totalRatings) * 10000) / 10000
+      Math.round((totalGenreRatings / totalRatings) * 10000) / 100
     }% of the dataset`;
   };
 
@@ -60,10 +73,15 @@ function renderVisualization1(genre = "Action") {
 
   filters.append(select);
   filters.append(occupationSelect);
-
+  femaleLabel.append(femaleBg);
+  femaleLabel.append(femaleText);
+  maleLabel.append(maleBg);
+  maleLabel.append(maleText);
   document.getElementById("d3").append(title);
   document.getElementById("d3").append(filters);
   document.getElementById("d3").append(totalRatingsText);
+  document.getElementById("d3").append(maleLabel);
+  document.getElementById("d3").append(femaleLabel);
 
   const svg = d3
     .select("#d3")

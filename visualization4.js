@@ -29,7 +29,6 @@ function renderVisualization4() {
     "#A3EBB1",
   ];
 
-  // create the svg area
   var svg = d3
     .select("#d3")
     .append("svg")
@@ -38,10 +37,8 @@ function renderVisualization4() {
     .append("g")
     .attr("transform", "translate(500,350)");
 
-  // create input data: a square matrix that provides flow between entities
   const matrix = getGenreCorrelations();
 
-  // give this matrix to d3.chord(): it will calculates all the info we need to draw arc and ribbon
   const chord = d3
     .chord()
     .padAngle(0.05) // padding between entities (black arc)

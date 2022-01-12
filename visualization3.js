@@ -22,7 +22,7 @@ function renderVisualization3(genre = "Action") {
   };
 
   select.onchange = (e) => {
-    data = getMoviesAverageRatingPerGenre(select.value, [0, 10]);
+    data = getMoviesAverageRatingPerGenre(select.value, [0, 10], toggle.innerText === "Ascending");
     update(data);
   };
 

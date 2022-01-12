@@ -34,11 +34,27 @@ function renderVisualization2() {
     .select(".domain")
     .remove();
 
+  svg
+    .append("text")
+    .style("font-size", 8)
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height + 20)
+    .text("Occupation");
+
   const y = d3
     .scaleBand()
     .range([height, 0])
     .domain(genres.map((g) => g.name))
     .padding(0.05);
+
+  svg
+    .append("text")
+    .style("font-size", 8)
+    .attr("text-anchor", "end")
+    .attr("y", -10)
+    .attr("x", 0)
+    .text("Genre");
 
   svg.append("g").style("font-size", 4).call(d3.axisLeft(y).tickSize(0)).select(".domain").remove();
 
